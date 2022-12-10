@@ -1,0 +1,25 @@
+[Unit]
+Description=gunicorn daemon
+Requires=socket
+After=network.target
+
+[Service]
+PIDFile=/run/gunicorn/pid
+User=root
+Group=root
+Enviroment="PATH=/home/sereda/backend/eccback/venv/bin:$PATH"
+RuntimeDirectory=gunicorn
+WorkingDirectory=/home/sereda/backend/eccback
+ExecStart=/usr/local/bin/gunicorn --pythonpath=/home/sereda/backend/eccback/venv/lib/python3.7/site-packages  --pid /run/gunicorn/pid \
+          --bind unix:/run/gunicorn/socket --workers 2 --worker-class uvicorn.workers.UvicornWorker \
+          --bind  0.0.0.0:8000 app.main:app --reload
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=dkh_backend
+
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
